@@ -66,4 +66,19 @@ return [
     */
     'imports' => [],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Collection Names
+    |--------------------------------------------------------------------------
+    | Override the Collections enum value for specific models.
+    | By default, the plural camelCase of the model name is used.
+    |
+    | Example:
+    | 'collection_names' => [
+    |     App\Models\Person::class => 'people',
+    |     App\Models\Category::class => 'cats',
+    | ],
+    */
+    'collection_names' => [],
+
 ];
