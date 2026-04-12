@@ -111,13 +111,6 @@ class ModelInspector
             $fields[$colName] = [$tsType, $nullable, $enumClass, false];
         }
 
-        // Always include timestamps
-        foreach (['created_at', 'updated_at', 'deleted_at'] as $ts) {
-            if (!isset($fields[$ts]) && $model->usesTimestamps()) {
-                $nullable = $ts === 'deleted_at';
-                $fields[$ts] = ['string', $nullable, null, false];
-            }
-        }
 
         // Apply overrides from config
         foreach ($overrides as $fieldName => $override) {
