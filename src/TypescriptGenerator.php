@@ -105,7 +105,7 @@ class TypescriptGenerator
         $hasLabel = $enumData['hasLabel'];
 
         // const enum
-        $lines[] = "export const enum {$enumName} {";
+        $lines[] = "export enum {$enumName} {";
         foreach ($cases as $case) {
             $value = is_string($case['value']) ? "'{$case['value']}'" : $case['value'];
             $lines[] = "  {$case['name']} = {$value},";
