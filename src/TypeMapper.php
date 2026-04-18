@@ -27,7 +27,6 @@ class TypeMapper
         'object' => 'Record<string, unknown>',
         'collection' => 'unknown[]',
         'date' => 'string',
-        'date:Y-m-d' => 'string',
         'datetime' => 'string',
         'immutable_date' => 'string',
         'immutable_datetime' => 'string',
@@ -130,6 +129,10 @@ class TypeMapper
         // Handle decimal precision: decimal:2 → number
         if (str_starts_with($cast, 'decimal:') || str_starts_with($cast, 'float:')) {
             return ['number', $nullable, null];
+        }
+
+        if (str_starts_with($cast, 'date:')) {
+            return ['string', $nullable, null];
         }
 
         // Check if it's an enum class
