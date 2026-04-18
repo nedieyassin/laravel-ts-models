@@ -27,6 +27,7 @@ class TypeMapper
         'object' => 'Record<string, unknown>',
         'collection' => 'unknown[]',
         'date' => 'string',
+        'date:Y-m-d' => 'string',
         'datetime' => 'string',
         'immutable_date' => 'string',
         'immutable_datetime' => 'string',
