@@ -38,7 +38,7 @@ class TypescriptGenerator
             $overrides = config('ts-models.overrides', [])[$model::class] ?? [];
             foreach ($overrides as $override) {
                 if (!empty($override['import'])) {
-                    $this->allImports[] = "import type { {$override['type']} } from '{$override['import']}'";
+                    $this->allImports[] = $override['import'];
                 }
             }
         }
