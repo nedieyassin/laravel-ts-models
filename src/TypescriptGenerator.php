@@ -4,6 +4,7 @@ namespace Nedieyassin\LaravelTsModels;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use ReflectionClass;
 
 class TypescriptGenerator
 {
@@ -23,6 +24,13 @@ class TypescriptGenerator
     {
         $this->allEnums = [];
         $this->allImports = [];
+
+
+        $extraEmus = $this->resolveExtraEnums();
+
+        foreach ($extraEmus as $enumClass => $enumData) {
+            $this->allEnums[$enumClass] = $enumData;
+        }
 
         // First pass: inspect all models and collect enums + imports
         $inspected = [];
@@ -206,5 +214,37 @@ class TypescriptGenerator
         $lines[] = '';
 
         return $lines;
+    }
+
+
+    /**
+     * Collect all enum classes from casts.
+     * Returns [ enumClass => [ 'cases' => [...], 'hasLabel' => bool ] ]
+     */
+    protected function resolveExtraEnums(): array
+    {
+        $enums = [];
+
+        $overrides = config('ts-models.enums', []);
+
+        foreach ($overrides as $castType) {
+            $reflection = new ReflectionClass($castType);
+            $cases = [];
+
+            foreach ($castType::cases() as $case) {
+                $cases[] = [
+                    'name' => $case->name,
+                    'value' => $case->value ?? $case->name,
+                ];
+            }
+            $hasLabel = $reflection->hasMethod('label') &&
+                $reflection->getMethod('label')->getReturnType()?->getName() === 'string';
+            $enums[$castType] = [
+                'cases' => $cases,
+                'hasLabel' => $hasLabel,
+            ];
+        }
+
+        return $enums;
     }
 }
