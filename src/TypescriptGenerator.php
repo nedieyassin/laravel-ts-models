@@ -176,7 +176,8 @@ class TypescriptGenerator
         if (!empty($accessors)) {
             $lines[] = '  // accessors';
             foreach ($accessors as $accName => $tsType) {
-                $lines[] = "  {$accName}: {$tsType}";
+                $col = Str::snake($accName);
+                $lines[] = "  {$col}: {$tsType}";
             }
         }
 
@@ -184,10 +185,11 @@ class TypescriptGenerator
         if (!empty($relations)) {
             $lines[] = '  // relations';
             foreach ($relations as $relName => $rel) {
+                $col = Str::snake($relName);
                 if ($rel['kind'] === 'many') {
-                    $lines[] = "  {$relName}?: {$rel['type']}[]";
+                    $lines[] = "  {$col}?: {$rel['type']}[]";
                 } else {
-                    $lines[] = "  {$relName}?: {$rel['type']}";
+                    $lines[] = "  {$col}?: {$rel['type']}";
                 }
             }
         }
@@ -197,7 +199,8 @@ class TypescriptGenerator
         if (!empty($manyRelations)) {
             $lines[] = '  // counts';
             foreach ($manyRelations as $relName => $rel) {
-                $lines[] = "  {$relName}_count?: number";
+                $col = Str::snake($relName);
+                $lines[] = "  {$col}_count?: number";
             }
         }
 
@@ -206,7 +209,8 @@ class TypescriptGenerator
         if (!empty($oneRelations)) {
             $lines[] = '  // exists';
             foreach ($oneRelations as $relName => $rel) {
-                $lines[] = "  {$relName}_exists?: boolean";
+                $col = Str::snake($relName);
+                $lines[] = "  {$col}_exists?: boolean";
             }
         }
 
@@ -220,6 +224,7 @@ class TypescriptGenerator
     /**
      * Collect all enum classes from casts.
      * Returns [ enumClass => [ 'cases' => [...], 'hasLabel' => bool ] ]
+     * @throws \ReflectionException
      */
     protected function resolveExtraEnums(): array
     {
