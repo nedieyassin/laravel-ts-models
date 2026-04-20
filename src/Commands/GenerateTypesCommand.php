@@ -26,9 +26,7 @@ class GenerateTypesCommand extends Command
         $singleModel = $this->option('model');
         $dryRun = $this->option('dry-run');
 
-        $models = $singleModel
-            ? $this->loadSingleModel($singleModel)
-            : $this->loadAllModels($modelsPath, $excludes);
+        $models = $singleModel ? $this->loadSingleModel($singleModel) : $this->loadAllModels($modelsPath, $excludes);
 
         if (empty($models)) {
             $this->error('No models found.');
@@ -113,7 +111,6 @@ class GenerateTypesCommand extends Command
             if (!$instance instanceof Model) continue;
 
             $models[] = $instance;
-            $this->line("  ✓ Found: {$class}");
         }
 
         return $models;
