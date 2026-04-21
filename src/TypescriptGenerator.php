@@ -115,7 +115,7 @@ class TypescriptGenerator
         // const enum
         $lines[] = "export enum {$enumName} {";
         foreach ($cases as $case) {
-            $value = is_string($case['value']) ? "'{$case['value']}'" : $case['value'];
+            $value = is_string($case['value']) ? "\"{$case['value']}\"" : $case['value'];
             $lines[] = "  {$case['name']} = {$value},";
         }
         $lines[] = '}';
