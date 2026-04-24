@@ -120,13 +120,15 @@ class TypescriptGenerator
         }
         $lines[] = '}';
         $lines[] = '';
+        $lines[] = '';
 
-        // const enum array
+        // const enum array list
         $lines[] = "export const {$enumName}Enum = [";
         foreach ($cases as $case) {
             $lines[] = " {$enumName}.{$case['name']},";
         }
         $lines[] = ']';
+        $lines[] = '';
         $lines[] = '';
 
         // options array if label() exists
