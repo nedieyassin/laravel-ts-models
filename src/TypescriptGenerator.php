@@ -113,12 +113,22 @@ class TypescriptGenerator
         $hasLabel = $enumData['hasLabel'];
 
         // const enum
-        $lines[] = "export enum {$enumName} {";
+        $lines[] = "export const enum {$enumName} {";
         foreach ($cases as $case) {
             $value = is_string($case['value']) ? "'{$case['value']}'" : $case['value'];
             $lines[] = "  {$case['name']} = {$value},";
         }
         $lines[] = '}';
+        $lines[] = '';
+        $lines[] = '';
+
+        // const enum array list
+        $lines[] = "export const {$enumName}Enum = [";
+        foreach ($cases as $case) {
+            $lines[] = " {$enumName}.{$case['name']},";
+        }
+        $lines[] = ']';
+        $lines[] = '';
         $lines[] = '';
 
         // options array if label() exists
