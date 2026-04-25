@@ -120,14 +120,14 @@ class TypescriptGenerator
         }
         $lines[] = '}';
         $lines[] = '';
-
-        $items = [];
-        foreach ($cases as $case) {
-            $items[] = "{$enumName}.{$case['name']}";
-        }
-        $lines[] = "export const {$enumName}Enum = [";
-        $lines[] = "  " . implode(",\n  ", $items);
-        $lines[] = "];";
+//
+//        $items = [];
+//        foreach ($cases as $case) {
+//            $items[] = "{$enumName}.{$case['name']}";
+//        }
+//        $lines[] = "export const {$enumName}Enum = [";
+//        $lines[] = "  " . implode(",\n  ", $items);
+//        $lines[] = "];";
 
         $lines[] = '';
 
