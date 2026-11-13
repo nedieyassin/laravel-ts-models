@@ -153,6 +153,10 @@ class TypescriptGenerator
     /**
      * Build the TypeScript interface for a single model.
      */
+    /**
+     * Build the TypeScript interface for a single model.
+     * Priority: columns > accessors > relations > counts > exists.
+     */
     protected function buildInterface(Model $model, array $data): array
     {
         $lines = [];
@@ -163,12 +167,17 @@ class TypescriptGenerator
         $relations = $data['relations'];
         $accessors = $data['accessors'];
 
+        // Tracks every property name already emitted. First one wins.
+        $taken = [];
+
         $lines[] = "export interface {$iName} {";
 
-        // Fields
+        // Fields (highest priority)
         if (!empty($fields)) {
             $lines[] = '  // columns';
             foreach ($fields as $colName => [$tsType, $nullable, $enumClass]) {
+                $taken[$colName] = true;
+
                 if ($enumClass) {
                     $enumName = class_basename($enumClass);
                     $suffix = $nullable ? ' | null' : '';
@@ -183,45 +192,71 @@ class TypescriptGenerator
         }
 
         // Accessors
-        if (!empty($accessors)) {
-            $lines[] = '  // accessors';
-            foreach ($accessors as $accName => $tsType) {
-                $col = Str::snake($accName);
-                $lines[] = "  {$col}: {$tsType}";
+        $section = [];
+        foreach ($accessors as $accName => $tsType) {
+            $col = Str::snake($accName);
+            if (isset($taken[$col])) {
+                continue;
             }
+            $taken[$col] = true;
+            $section[] = "  {$col}: {$tsType}";
+        }
+        if (!empty($section)) {
+            $lines[] = '  // accessors';
+            array_push($lines, ...$section);
         }
 
         // Relations
-        if (!empty($relations)) {
+        $section = [];
+        foreach ($relations as $relName => $rel) {
+            $col = Str::snake($relName);
+            if (isset($taken[$col])) {
+                continue;
+            }
+            $taken[$col] = true;
+            $section[] = $rel['kind'] === 'many'
+                ? "  {$col}?: {$rel['type']}[]"
+                : "  {$col}?: {$rel['type']}";
+        }
+        if (!empty($section)) {
             $lines[] = '  // relations';
-            foreach ($relations as $relName => $rel) {
-                $col = Str::snake($relName);
-                if ($rel['kind'] === 'many') {
-                    $lines[] = "  {$col}?: {$rel['type']}[]";
-                } else {
-                    $lines[] = "  {$col}?: {$rel['type']}";
-                }
-            }
+            array_push($lines, ...$section);
         }
 
-        // _count for HasMany relations
-        $manyRelations = array_filter($relations, fn($r) => $r['kind'] === 'many');
-        if (!empty($manyRelations)) {
+        // _count for HasMany relations (derived from the original relations array)
+        $section = [];
+        foreach ($relations as $relName => $rel) {
+            if ($rel['kind'] !== 'many') {
+                continue;
+            }
+            $col = Str::snake($relName) . '_count';
+            if (isset($taken[$col])) {
+                continue;
+            }
+            $taken[$col] = true;
+            $section[] = "  {$col}?: number";
+        }
+        if (!empty($section)) {
             $lines[] = '  // counts';
-            foreach ($manyRelations as $relName => $rel) {
-                $col = Str::snake($relName);
-                $lines[] = "  {$col}_count?: number";
-            }
+            array_push($lines, ...$section);
         }
 
-        // _exists for HasOne relations
-        $oneRelations = array_filter($relations, fn($r) => $r['kind'] === 'one');
-        if (!empty($oneRelations)) {
-            $lines[] = '  // exists';
-            foreach ($oneRelations as $relName => $rel) {
-                $col = Str::snake($relName);
-                $lines[] = "  {$col}_exists?: boolean";
+        // _exists for HasOne relations (derived from the original relations array)
+        $section = [];
+        foreach ($relations as $relName => $rel) {
+            if ($rel['kind'] !== 'one') {
+                continue;
             }
+            $col = Str::snake($relName) . '_exists';
+            if (isset($taken[$col])) {
+                continue;
+            }
+            $taken[$col] = true;
+            $section[] = "  {$col}?: boolean";
+        }
+        if (!empty($section)) {
+            $lines[] = '  // exists';
+            array_push($lines, ...$section);
         }
 
         $lines[] = '}';
@@ -229,7 +264,6 @@ class TypescriptGenerator
 
         return $lines;
     }
-
 
     /**
      * Collect all enum classes from casts.
